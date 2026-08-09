@@ -1,0 +1,21 @@
+{
+  "id": "00000000-0000-4000-8000-000000000002",
+  "slug": "registers-and-memory",
+  "title": "Registers & Memory (plantilla)",
+  "status": "draft",
+  "summary": "Plantilla vacía: edita content/lessons/lesson-02-stub.json y vuelve a seedear para tu Lección 2.",
+  "steps": [
+    {
+      "id": "step-placeholder",
+      "kind": "placeholder",
+      "title": "Próximamente",
+      "narration": "Esta lección es una plantilla. Sustituye este step por contenido real (registros, memoria, punteros, etc.).",
+      "visual": {
+        "bitWidth": 8,
+        "operator": "AND",
+        "a": 0,
+        "b": 0
+      }
+    }
+  ]
+}

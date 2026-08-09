@@ -1,0 +1,55 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-embedded}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-embedded}
+      POSTGRES_DB: ${POSTGRES_DB:-embedded_labs}
+    ports:
+      - "15433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-embedded} -d ${POSTGRES_DB:-embedded_labs}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-embedded}:${POSTGRES_PASSWORD:-embedded}@postgres:5432/${POSTGRES_DB:-embedded_labs}
+      API_HOST: 0.0.0.0
+      API_PORT: 8080
+      RUST_LOG: ${RUST_LOG:-info,embedded_labs_api=debug}
+      CONTENT_DIR: /content/lessons
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./content/lessons:/content/lessons:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    environment:
+      VITE_API_PROXY_TARGET: http://api:8080
+    ports:
+      - "5173:5173"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  pgdata:
