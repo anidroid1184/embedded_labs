@@ -22,6 +22,12 @@ A highly visual web app where you **watch bits transform** step by step (AND/OR/
 | DB | Postgres |
 | Infra | Docker Compose |
 
+## Live demo
+
+GitHub Pages (static frontend, lessons bundled, progress in `localStorage`):
+
+**https://anidroid1184.github.io/embedded_labs/**
+
 ## Quick start
 
 ```bash

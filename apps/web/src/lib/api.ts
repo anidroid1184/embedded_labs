@@ -1,6 +1,11 @@
 import type { BitOperator } from './bit-engine'
 
 const GUEST_KEY = 'embedded_labs_guest_id'
+const PROGRESS_KEY = 'embedded_labs_progress'
+
+const staticMode =
+  import.meta.env.VITE_STATIC_MODE === 'true' ||
+  import.meta.env.VITE_STATIC_MODE === '1'
 
 export type LessonStatus = 'published' | 'draft'
 export type StepKind = 'bit_op' | 'mask' | 'quiz' | 'placeholder'
@@ -43,12 +48,42 @@ export type ProgressResponse = {
   items: ProgressItem[]
 }
 
+function assetUrl(relativePath: string): string {
+  const base = import.meta.env.BASE_URL.endsWith('/')
+    ? import.meta.env.BASE_URL
+    : `${import.meta.env.BASE_URL}/`
+  return `${base}${relativePath.replace(/^\//, '')}`
+}
+
 function getStoredGuestId(): string | null {
   return localStorage.getItem(GUEST_KEY)
 }
 
 function storeGuestId(guestId: string): void {
   localStorage.setItem(GUEST_KEY, guestId)
+}
+
+function ensureGuestId(): string {
+  const existing = getStoredGuestId()
+  if (existing) return existing
+  const guestId = crypto.randomUUID()
+  storeGuestId(guestId)
+  return guestId
+}
+
+function readLocalProgress(): ProgressItem[] {
+  try {
+    const raw = localStorage.getItem(PROGRESS_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw) as ProgressItem[]
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+function writeLocalProgress(items: ProgressItem[]): void {
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(items))
 }
 
 async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -73,27 +108,100 @@ async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   return (await response.json()) as T
 }
 
-export function listLessons(): Promise<LessonSummary[]> {
-  return apiFetch('/api/v1/lessons')
+async function listLessonsStatic(): Promise<LessonSummary[]> {
+  const response = await fetch(assetUrl('lessons/manifest.json'))
+  if (!response.ok) {
+    throw new Error('Failed to load static lesson manifest')
+  }
+  return (await response.json()) as LessonSummary[]
 }
 
-export function getLesson(slug: string): Promise<LessonDetail> {
-  return apiFetch(`/api/v1/lessons/${encodeURIComponent(slug)}`)
+async function getLessonStatic(slug: string): Promise<LessonDetail> {
+  const response = await fetch(assetUrl(`lessons/${encodeURIComponent(slug)}.json`))
+  if (!response.ok) {
+    throw new Error(`Lesson '${slug}' not found`)
+  }
+  return (await response.json()) as LessonDetail
 }
 
-export function getProgress(): Promise<ProgressResponse> {
-  return apiFetch('/api/v1/progress')
+export async function listLessons(): Promise<LessonSummary[]> {
+  if (staticMode) {
+    return listLessonsStatic()
+  }
+  try {
+    return await apiFetch('/api/v1/lessons')
+  } catch {
+    return listLessonsStatic()
+  }
 }
 
-export function upsertProgress(input: {
+export async function getLesson(slug: string): Promise<LessonDetail> {
+  if (staticMode) {
+    return getLessonStatic(slug)
+  }
+  try {
+    return await apiFetch(`/api/v1/lessons/${encodeURIComponent(slug)}`)
+  } catch {
+    return getLessonStatic(slug)
+  }
+}
+
+export async function getProgress(): Promise<ProgressResponse> {
+  if (staticMode) {
+    return {
+      guestId: ensureGuestId(),
+      items: readLocalProgress(),
+    }
+  }
+  try {
+    return await apiFetch('/api/v1/progress')
+  } catch {
+    return {
+      guestId: ensureGuestId(),
+      items: readLocalProgress(),
+    }
+  }
+}
+
+export async function upsertProgress(input: {
   lessonSlug: string
   stepId: string
   completed: boolean
 }): Promise<ProgressResponse> {
-  return apiFetch('/api/v1/progress', {
-    method: 'PUT',
-    body: JSON.stringify(input),
-  })
+  if (staticMode) {
+    const guestId = ensureGuestId()
+    const items = readLocalProgress().filter(
+      (item) =>
+        !(item.lessonSlug === input.lessonSlug && item.stepId === input.stepId),
+    )
+    items.push({
+      lessonSlug: input.lessonSlug,
+      stepId: input.stepId,
+      completed: input.completed,
+    })
+    writeLocalProgress(items)
+    return { guestId, items }
+  }
+
+  try {
+    return await apiFetch('/api/v1/progress', {
+      method: 'PUT',
+      body: JSON.stringify(input),
+    })
+  } catch {
+    const guestId = ensureGuestId()
+    const items = readLocalProgress().filter(
+      (item) =>
+        !(item.lessonSlug === input.lessonSlug && item.stepId === input.stepId),
+    )
+    items.push({
+      lessonSlug: input.lessonSlug,
+      stepId: input.stepId,
+      completed: input.completed,
+    })
+    writeLocalProgress(items)
+    return { guestId, items }
+  }
 }
 
 export function isStepCompleted(

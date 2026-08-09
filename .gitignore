@@ -9,3 +9,4 @@ test-results/
 coverage/
 .pnpm-store/
 apps/web/playwright/.cache/
+apps/web/public/lessons/
