@@ -1,16 +1,18 @@
 services:
   postgres:
     image: postgres:16-alpine
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-embedded}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-embedded}
-      POSTGRES_DB: ${POSTGRES_DB:-embedded_labs}
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in .env}
     ports:
       - "15433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-embedded} -d ${POSTGRES_DB:-embedded_labs}"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -19,8 +21,10 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
+    env_file:
+      - .env
     environment:
-      DATABASE_URL: postgres://${POSTGRES_USER:-embedded}:${POSTGRES_PASSWORD:-embedded}@postgres:5432/${POSTGRES_DB:-embedded_labs}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       API_HOST: 0.0.0.0
       API_PORT: 8080
       RUST_LOG: ${RUST_LOG:-info,embedded_labs_api=debug}

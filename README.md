@@ -75,6 +75,16 @@ cd apps/web && pnpm exec playwright install chromium && pnpm e2e
 - User authentication
 - WASM
 
+## Security / credentials
+
+- **Never commit `.env`** (gitignored). Only `.env.example` is tracked, with local placeholders (`changeme`).
+- Copy `cp .env.example .env` before `docker compose up`.
+- Compose **requires** `POSTGRES_*` from `.env` (no silent default passwords in YAML).
+- CI runs **Gitleaks** on every push/PR (`.github/workflows/secret-scan.yml`).
+- GitHub Pages deploy is static-only: no DB URL or API secrets in the frontend build.
+
+If you ever push a real secret by mistake: rotate it immediately and scrub git history.
+
 ## License
 
 MIT — use it, fork it, learn with it.

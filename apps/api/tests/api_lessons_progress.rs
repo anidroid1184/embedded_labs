@@ -6,7 +6,10 @@ use uuid::Uuid;
 
 fn database_url() -> String {
     std::env::var("DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://embedded:embedded@localhost:15433/embedded_labs".into())
+        .unwrap_or_else(|_| {
+            // Local test fallback only — real runs should set DATABASE_URL from .env
+            "postgres://embedded:changeme@localhost:15433/embedded_labs".into()
+        })
 }
 
 fn content_dir() -> PathBuf {

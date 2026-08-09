@@ -1,0 +1,13 @@
+title = "embedded_labs"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Local-dev placeholders only (never real secrets)"
+paths = [
+  '''^\.env\.example$''',
+]
+regexes = [
+  '''changeme''',
+]

@@ -1,12 +1,29 @@
+# Dependencies & build
 target/
 node_modules/
 dist/
+.pnpm-store/
+
+# Secrets & local env (never commit real credentials)
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
+.secrets
+.secret
+
+# Logs & OS
 .DS_Store
 *.log
+
+# Test / tooling artifacts
 playwright-report/
 test-results/
 coverage/
-.pnpm-store/
 apps/web/playwright/.cache/
 apps/web/public/lessons/
