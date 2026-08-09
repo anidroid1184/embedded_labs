@@ -1,28 +1,28 @@
 # Embedded Labs
 
-**Side project open source** — laboratorio gráfico para aprender programación a bajo nivel: bits, máscaras, desplazamientos y (más adelante) el camino hacia sistemas embebidos / kernel.
+**Open-source side project** — a visual lab for learning low-level programming: bits, masks, shifts, and (later) the path toward embedded systems / the kernel.
 
-> Prototipo iniciado con ayuda de IA (Cursor). El objetivo es aprender haciendo: infra real, frontend visual y contenido de lecciones que vas ampliando tú.
+> Prototype bootstrapped with AI assistance (Cursor). The goal is learning by building: real infrastructure, a visual frontend, and lesson content you extend yourself.
 
-## Qué es
+## What it is
 
-Una web altamente visual donde ves **cómo se transforman los bits** paso a paso (AND/OR/XOR/NOT, máscaras, SHL), con:
+A highly visual web app where you **watch bits transform** step by step (AND/OR/XOR/NOT, masks, SHL), featuring:
 
-- Player gráfico + animaciones de desplazamiento
-- API de lecciones/progreso
-- Docker Compose para levantar todo en local
-- Lección 1 completa como plantilla; Lección 2 stub para que metas mano
+- Graphic lesson player + bit-shift animations
+- Lessons & progress API
+- Docker Compose for a full local stack
+- Lesson 1 complete as a template; Lesson 2 stub for you to fill in
 
-## Stack v0.1
+## Stack (v0.1)
 
-| Capa | Tecnología |
-|------|------------|
+| Layer | Tech |
+|------|------|
 | Frontend | Vite + React + TypeScript (`apps/web`) |
 | Backend | Rust — Axum + sqlx (`apps/api`) |
 | DB | Postgres |
 | Infra | Docker Compose |
 
-## Arranque rápido
+## Quick start
 
 ```bash
 git clone https://github.com/anidroid1184/embedded_labs.git
@@ -35,7 +35,7 @@ docker compose up --build
 - API: http://localhost:8080/health
 - Postgres (host): `localhost:15433`
 
-## Desarrollo local
+## Local development
 
 ```bash
 # Terminal 1 — DB
@@ -56,23 +56,23 @@ cd apps/web && pnpm test
 cd apps/web && pnpm exec playwright install chromium && pnpm e2e
 ```
 
-## Añadir una lección
+## Add a lesson
 
-1. Copia `content/lessons/lesson-02-stub.json` → `lesson-03-....json`
-2. Cambia `id` (UUID), `slug`, `title`, `status`, `steps`
-3. Reinicia la API (el seed sincroniza JSON → DB al arrancar)
-4. Kinds: `bit_op` · `mask` · `quiz` · `placeholder`
+1. Copy `content/lessons/lesson-02-stub.json` → `lesson-03-....json`
+2. Change `id` (UUID), `slug`, `title`, `status`, `steps`
+3. Restart the API (seed syncs JSON → DB on boot)
+4. Supported kinds: `bit_op` · `mask` · `quiz` · `placeholder`
 
-## Fuera de alcance (v0.1)
+## Out of scope (v0.1)
 
-- Sandbox Docker de asm/kernel
-- Auth de usuarios
+- Docker sandbox for asm/kernel
+- User authentication
 - WASM
 
-## Licencia
+## License
 
-MIT — úsalo, forkearlo y aprender con él.
+MIT — use it, fork it, learn with it.
 
-## Contribuir
+## Contributing
 
-Issues y PRs bienvenidos. Es un side project en construcción: prioriza claridad, tests y lecciones jugables.
+Issues and PRs welcome. This is a side project in progress: prioritize clarity, tests, and playable lessons.
