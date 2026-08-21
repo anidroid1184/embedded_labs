@@ -7,6 +7,8 @@ import type {
   BitVisual,
 } from './types'
 
+export type FrameLabelFn = (key: string, vars?: Record<string, string | number>) => string
+
 function rolesForMask(value: number, mask: number, bitWidth: number): BitCellRole[] {
   const valueBits = toBitArray(value, bitWidth)
   const maskBits = toBitArray(mask, bitWidth)
@@ -44,9 +46,29 @@ function frame(
   return { kind, label, motion, rows, shiftBy }
 }
 
-export function buildAnimation(visual: BitVisual): BitAnimation {
+const defaultLabels: FrameLabelFn = (key, vars) => {
+  const map: Record<string, string> = {
+    'frame.operands': `Operands · ${vars?.op ?? ''}`,
+    'frame.result': `A ${vars?.op ?? ''} B → result`,
+    'frame.value': 'Original value',
+    'frame.maskAlign': 'Mask aligns',
+    'frame.maskResult': 'Filtered bits (AND mask)',
+    'frame.notOperand': 'Operand A',
+    'frame.notResult': 'NOT flips every bit',
+    'frame.shiftReady': 'Register ready to shift',
+    'frame.shiftMoving': `${vars?.op ?? ''} ${vars?.n ?? ''} — bits in motion`,
+    'frame.shiftDone': 'New register value',
+  }
+  return map[key] ?? key
+}
+
+export function buildAnimation(
+  visual: BitVisual,
+  labelFn: FrameLabelFn = defaultLabels,
+): BitAnimation {
   const bitWidth = visual.bitWidth
   const isMask = visual.mask !== undefined || visual.value !== undefined
+  const t = labelFn
 
   if (isMask) {
     const value = clampBits(visual.value ?? visual.a, bitWidth)
@@ -56,12 +78,12 @@ export function buildAnimation(visual: BitVisual): BitAnimation {
       bitWidth,
       result,
       frames: [
-        frame('operands', 'Valor original', 'none', [{ name: 'value', value }]),
-        frame('mask', 'Máscara se alinea', 'mask-filter', [
+        frame('operands', t('frame.value'), 'none', [{ name: 'value', value }]),
+        frame('mask', t('frame.maskAlign'), 'mask-filter', [
           { name: 'value', value, fromValue: value },
           { name: 'mask', value: mask, highlight: true, fromValue: 0 },
         ]),
-        frame('result', 'Bits filtrados (AND máscara)', 'mask-filter', [
+        frame('result', t('frame.maskResult'), 'mask-filter', [
           {
             name: 'result',
             value: result,
@@ -83,8 +105,8 @@ export function buildAnimation(visual: BitVisual): BitAnimation {
       bitWidth,
       result,
       frames: [
-        frame('operands', 'Operando A', 'none', [{ name: 'A', value: a }]),
-        frame('result', 'NOT invierte cada bit', 'flip', [
+        frame('operands', t('frame.notOperand'), 'none', [{ name: 'A', value: a }]),
+        frame('result', t('frame.notResult'), 'flip', [
           {
             name: 'result',
             value: result,
@@ -107,30 +129,16 @@ export function buildAnimation(visual: BitVisual): BitAnimation {
       bitWidth,
       result,
       frames: [
-        frame('operands', 'Registro listo para desplazar', 'none', [
-          { name: 'A', value: a },
-        ]),
+        frame('operands', t('frame.shiftReady'), 'none', [{ name: 'A', value: a }]),
         frame(
           'shift',
-          `${visual.operator} ${shiftBy} — bits en movimiento`,
+          t('frame.shiftMoving', { op: visual.operator, n: shiftBy }),
           motion,
-          [
-            {
-              name: 'A',
-              value: result,
-              highlight: true,
-              fromValue: a,
-            },
-          ],
+          [{ name: 'A', value: result, highlight: true, fromValue: a }],
           shiftBy,
         ),
-        frame('result', 'Nuevo valor del registro', 'flip', [
-          {
-            name: 'result',
-            value: result,
-            highlight: true,
-            fromValue: a,
-          },
+        frame('result', t('frame.shiftDone'), 'flip', [
+          { name: 'result', value: result, highlight: true, fromValue: a },
         ]),
       ],
     }
@@ -140,11 +148,11 @@ export function buildAnimation(visual: BitVisual): BitAnimation {
     bitWidth,
     result,
     frames: [
-      frame('operands', `Operandos · ${visual.operator}`, 'none', [
+      frame('operands', t('frame.operands', { op: visual.operator }), 'none', [
         { name: 'A', value: a },
         { name: 'B', value: b },
       ]),
-      frame('result', `A ${visual.operator} B → resultado`, 'merge', [
+      frame('result', t('frame.result', { op: visual.operator }), 'merge', [
         { name: 'A', value: a, fromValue: a },
         { name: 'B', value: b, fromValue: b },
         {

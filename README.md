@@ -9,22 +9,23 @@
 A highly visual web app where you **watch bits transform** step by step (AND/OR/XOR/NOT, masks, SHL), featuring:
 
 - Graphic lesson player + bit-shift animations
-- Lessons & progress API
+- **ES/EN i18n** with an interactive language toggle (persisted)
+- Lessons & progress API (FastAPI)
 - Docker Compose for a full local stack
 - Lesson 1 complete as a template; Lesson 2 stub for you to fill in
 
-## Stack (v0.1)
+## Stack (v0.2)
 
 | Layer | Tech |
 |------|------|
 | Frontend | Vite + React + TypeScript (`apps/web`) |
-| Backend | Rust — Axum + sqlx (`apps/api`) |
+| Backend | Python — FastAPI + SQLAlchemy (`apps/api`) |
 | DB | Postgres |
 | Infra | Docker Compose |
 
 ## Live demo
 
-GitHub Pages (static frontend, lessons bundled, progress in `localStorage`):
+GitHub Pages (static frontend, bilingual lessons bundled, progress in `localStorage`):
 
 **https://anidroid1184.github.io/embedded_labs/**
 
@@ -57,7 +58,7 @@ cd apps/web && pnpm install && pnpm dev
 ## Tests
 
 ```bash
-make test-api          # API (C01–C08)
+make test-api          # pytest (C01–C08, locale C04–C05)
 cd apps/web && pnpm test
 cd apps/web && pnpm exec playwright install chromium && pnpm e2e
 ```
@@ -65,15 +66,9 @@ cd apps/web && pnpm exec playwright install chromium && pnpm e2e
 ## Add a lesson
 
 1. Copy `content/lessons/lesson-02-stub.json` → `lesson-03-....json`
-2. Change `id` (UUID), `slug`, `title`, `status`, `steps`
+2. Change `id` (UUID), `slug`, bilingual `title`/`summary`/`narration` (`{ "es": "...", "en": "..." }`), `status`, `steps`
 3. Restart the API (seed syncs JSON → DB on boot)
 4. Supported kinds: `bit_op` · `mask` · `quiz` · `placeholder`
-
-## Out of scope (v0.1)
-
-- Docker sandbox for asm/kernel
-- User authentication
-- WASM
 
 ## Security / credentials
 
@@ -84,6 +79,12 @@ cd apps/web && pnpm exec playwright install chromium && pnpm e2e
 - GitHub Pages deploy is static-only: no DB URL or API secrets in the frontend build.
 
 If you ever push a real secret by mistake: rotate it immediately and scrub git history.
+
+## Out of scope (v0.2)
+
+- Docker sandbox for asm/kernel
+- User authentication
+- WASM
 
 ## License
 

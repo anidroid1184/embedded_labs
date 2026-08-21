@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
+import { useLocale } from '../i18n'
+import type { MessageKey } from '../i18n/messages/en'
 import {
   getProgress,
   isStepCompleted,
@@ -18,6 +20,7 @@ type LessonPlayerProps = {
 const PLAY_STEP_MS = 850
 
 export function LessonPlayer({ lesson }: LessonPlayerProps) {
+  const { t } = useLocale()
   const [stepIndex, setStepIndex] = useState(0)
   const [frameIndex, setFrameIndex] = useState(0)
   const [progressItems, setProgressItems] = useState<ProgressItem[]>([])
@@ -33,13 +36,15 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
     if (!step || step.kind === 'placeholder') {
       return null
     }
-    return buildAnimation(step.visual)
-  }, [step])
+    return buildAnimation(step.visual, (key, vars) =>
+      t(key as MessageKey, vars),
+    )
+  }, [step, t])
 
   useEffect(() => {
     setFrameIndex(0)
     setPlaying(false)
-  }, [stepIndex])
+  }, [stepIndex, lesson.slug])
 
   useEffect(() => {
     let cancelled = false
@@ -51,7 +56,7 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
       })
       .catch((err: unknown) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'No se pudo cargar progreso')
+          setError(err instanceof Error ? err.message : 'progress error')
         }
       })
     return () => {
@@ -82,7 +87,7 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
   }, [playing, frameIndex, animation, reduceMotion])
 
   if (!step) {
-    return <p>Esta lección no tiene pasos.</p>
+    return <p>{t('lesson.empty')}</p>
   }
 
   const completed = isStepCompleted(progressItems, lesson.slug, step.id)
@@ -101,7 +106,7 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
       })
       setProgressItems(res.items)
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error guardando progreso')
+      setError(err instanceof Error ? err.message : 'Error')
     } finally {
       setBusy(false)
     }
@@ -130,7 +135,7 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
     <div className="player">
       <aside className="player__rail">
         <p className="eyebrow">
-          {lesson.status === 'draft' ? 'Borrador' : 'Lección'}
+          {lesson.status === 'draft' ? t('player.draft') : t('player.lesson')}
         </p>
         <h1>{lesson.title}</h1>
         <p className="player__summary">{lesson.summary}</p>
@@ -146,7 +151,7 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
                   data-testid={`step-nav-${item.id}`}
                 >
                   <span>{item.title}</span>
-                  {done ? <span className="badge">Hecho</span> : null}
+                  {done ? <span className="badge">{t('player.done')}</span> : null}
                 </button>
               </li>
             )
@@ -160,19 +165,15 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
           <p>{step.narration}</p>
           {completed ? (
             <p className="status-pill" data-testid="step-completed">
-              Paso completado
+              {t('player.completed')}
             </p>
           ) : null}
         </header>
 
         {isPlaceholder ? (
           <section className="placeholder-panel" data-testid="placeholder-panel">
-            <h3>Plantilla lista para editar</h3>
-            <p>
-              Sustituye el contenido en{' '}
-              <code>content/lessons/lesson-02-stub.json</code> y reinicia la API
-              (o vacía la tabla <code>lessons</code>) para reseedar.
-            </p>
+            <h3>{t('player.placeholder.title')}</h3>
+            <p>{t('player.placeholder.body')}</p>
           </section>
         ) : frame && animation ? (
           <BitCanvas
@@ -186,10 +187,10 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
         {!isPlaceholder ? (
           <div className="controls">
             <button type="button" onClick={resetFrame} data-testid="btn-reset">
-              Reset
+              {t('player.reset')}
             </button>
             <button type="button" onClick={nextFrame} data-testid="btn-step">
-              Step
+              {t('player.step')}
             </button>
             <button
               type="button"
@@ -198,7 +199,7 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
               aria-pressed={playing}
               className={playing ? 'is-playing' : undefined}
             >
-              {playing ? 'Playing…' : 'Play'}
+              {playing ? t('player.playing') : t('player.play')}
             </button>
             <button
               type="button"
@@ -206,7 +207,7 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
               disabled={busy || completed}
               data-testid="btn-complete"
             >
-              {completed ? 'Completado' : 'Marcar completo'}
+              {completed ? t('player.completedBtn') : t('player.complete')}
             </button>
           </div>
         ) : (
@@ -217,7 +218,7 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
               disabled={busy || completed}
               data-testid="btn-complete"
             >
-              {completed ? 'Completado' : 'Marcar plantilla vista'}
+              {completed ? t('player.completedBtn') : t('player.markTemplate')}
             </button>
           </div>
         )}
@@ -230,14 +231,14 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
             disabled={stepIndex === 0}
             onClick={() => setStepIndex((i) => i - 1)}
           >
-            Anterior
+            {t('player.prev')}
           </button>
           <button
             type="button"
             disabled={stepIndex >= lesson.steps.length - 1}
             onClick={() => setStepIndex((i) => i + 1)}
           >
-            Siguiente
+            {t('player.next')}
           </button>
         </div>
       </main>

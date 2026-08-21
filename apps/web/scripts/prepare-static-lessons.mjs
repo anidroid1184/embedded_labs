@@ -6,6 +6,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const srcDir = path.resolve(__dirname, '../../../content/lessons')
 const destDir = path.resolve(__dirname, '../public/lessons')
 
+function localizedLabel(value) {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    return value.en || value.es || ''
+  }
+  return String(value ?? '')
+}
+
 mkdirSync(destDir, { recursive: true })
 
 const files = readdirSync(srcDir).filter((name) => name.endsWith('.json'))
@@ -24,6 +31,8 @@ for (const file of files) {
   })
 }
 
-manifest.sort((a, b) => a.title.localeCompare(b.title))
+manifest.sort((a, b) =>
+  localizedLabel(a.title).localeCompare(localizedLabel(b.title)),
+)
 writeFileSync(path.join(destDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`)
 console.log(`Prepared ${manifest.length} static lessons → public/lessons/`)

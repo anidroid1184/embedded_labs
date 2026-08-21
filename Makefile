@@ -19,7 +19,7 @@ api-dev:
 	@test -n "$(DATABASE_URL)" || (echo "Missing DATABASE_URL — copy .env.example to .env" && exit 1)
 	cd apps/api && CONTENT_DIR=$${CONTENT_DIR:-../../content/lessons} \
 		CORS_ORIGIN=$${CORS_ORIGIN:-http://localhost:5173} \
-		cargo run
+		PYTHONPATH=. uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
 
 web-dev:
 	cd apps/web && pnpm dev
@@ -27,8 +27,7 @@ web-dev:
 test: test-api test-web
 
 test-api:
-	@test -n "$(DATABASE_URL)" || (echo "Missing DATABASE_URL — copy .env.example to .env" && exit 1)
-	cd apps/api && CONTENT_DIR=$${CONTENT_DIR:-../../content/lessons} cargo test
+	cd apps/api && PYTHONPATH=. uv run pytest -q
 
 test-web:
 	cd apps/web && pnpm test

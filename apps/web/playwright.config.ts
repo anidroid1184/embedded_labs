@@ -18,7 +18,7 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
     ? undefined
     : {
-        command: 'pnpm dev --host 127.0.0.1 --port 5173',
+        command: 'pnpm run prepare:lessons && pnpm dev --host 127.0.0.1 --port 5173',
         url: 'http://127.0.0.1:5173',
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,

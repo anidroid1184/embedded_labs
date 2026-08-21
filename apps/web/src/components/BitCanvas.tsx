@@ -1,4 +1,5 @@
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
+import { useLocale } from '../i18n'
 import type { BitFrame } from '../lib/bit-engine'
 import { BitRow } from './BitRow'
 
@@ -15,6 +16,7 @@ export function BitCanvas({
   frameIndex,
   frameCount,
 }: BitCanvasProps) {
+  const { t } = useLocale()
   const reduceMotion = usePrefersReducedMotion()
   const animKey = `${frame.kind}-${frameIndex}-${frame.label}`
 
@@ -25,11 +27,11 @@ export function BitCanvas({
     >
       <header className="bit-canvas__header">
         <div>
-          <p className="bit-canvas__kicker">Registro visual</p>
+          <p className="bit-canvas__kicker">{t('canvas.kicker')}</p>
           <p className="bit-canvas__label">{frame.label}</p>
         </div>
         <p className="bit-canvas__progress" data-testid="frame-indicator">
-          Frame {frameIndex + 1}/{frameCount}
+          {t('canvas.frame')} {frameIndex + 1}/{frameCount}
         </p>
       </header>
       <div className="bit-canvas__track" aria-hidden="true">

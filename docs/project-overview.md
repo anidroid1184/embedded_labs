@@ -1,27 +1,28 @@
-<!-- Generated: 2026-08-09 20:00:00 UTC -->
+<!-- Generated: 2026-08-21 12:00:00 UTC -->
 
 # Project overview — Embedded Labs
 
 ## Purpose
 
-Web app to learn low-level programming visually. v0.1 delivers a bitwise lesson player, lesson/progress API in Rust, and Docker Compose infrastructure.
+Web app to learn low-level programming visually. v0.2 delivers a bilingual bitwise lesson player, FastAPI lessons/progress API, and Docker Compose infrastructure.
 
 ## Key paths
 
 | Path | Role |
 |---|---|
-| `apps/web` | React lesson player + bit-engine |
-| `apps/api` | Axum API, migrations, seed |
-| `content/lessons` | Lesson JSON source of truth for seed |
+| `apps/web` | React lesson player + bit-engine + i18n |
+| `apps/api` | FastAPI API, SQLAlchemy models, seed |
+| `content/lessons` | Bilingual lesson JSON source of truth |
 | `docker-compose.yml` | postgres + api + web |
 | `docs/project-overview.md` | This file |
 
 ## Runtime flow
 
-1. API boots → migrates Postgres → seeds lessons if empty
-2. Web loads lesson list from `/api/v1/lessons`
-3. Player runs bit animations client-side (`src/lib/bit-engine`)
-4. Progress stored per guest UUID (`X-Guest-Id` + `localStorage`)
+1. API boots → creates schema → seeds lessons from JSON
+2. Web loads lesson list from `/api/v1/lessons?locale=`
+3. Locale toggle persists in `localStorage` (`embedded_labs_locale`)
+4. Player runs bit animations client-side
+5. Progress stored per guest UUID (`X-Guest-Id` + `localStorage` on Pages)
 
 ## Deferred
 

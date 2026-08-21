@@ -1,4 +1,5 @@
 import type { BitOperator } from './bit-engine'
+import { pickI18n, type Locale } from '../i18n'
 
 const GUEST_KEY = 'embedded_labs_guest_id'
 const PROGRESS_KEY = 'embedded_labs_progress'
@@ -48,6 +49,23 @@ export type ProgressResponse = {
   items: ProgressItem[]
 }
 
+type Localized = string | Record<string, string>
+
+type RawLesson = {
+  id: string
+  slug: string
+  title: Localized
+  status: LessonStatus
+  summary: Localized
+  steps: Array<{
+    id: string
+    kind: StepKind
+    title: Localized
+    narration: Localized
+    visual: LessonStep['visual']
+  }>
+}
+
 function assetUrl(relativePath: string): string {
   const base = import.meta.env.BASE_URL.endsWith('/')
     ? import.meta.env.BASE_URL
@@ -86,6 +104,23 @@ function writeLocalProgress(items: ProgressItem[]): void {
   localStorage.setItem(PROGRESS_KEY, JSON.stringify(items))
 }
 
+function resolveLesson(raw: RawLesson, locale: Locale): LessonDetail {
+  return {
+    id: raw.id,
+    slug: raw.slug,
+    status: raw.status,
+    title: pickI18n(raw.title, locale),
+    summary: pickI18n(raw.summary, locale),
+    steps: raw.steps.map((step) => ({
+      id: step.id,
+      kind: step.kind,
+      title: pickI18n(step.title, locale),
+      narration: pickI18n(step.narration, locale),
+      visual: step.visual,
+    })),
+  }
+}
+
 async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers)
   headers.set('Content-Type', 'application/json')
@@ -108,41 +143,57 @@ async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   return (await response.json()) as T
 }
 
-async function listLessonsStatic(): Promise<LessonSummary[]> {
+async function listLessonsStatic(locale: Locale): Promise<LessonSummary[]> {
   const response = await fetch(assetUrl('lessons/manifest.json'))
   if (!response.ok) {
     throw new Error('Failed to load static lesson manifest')
   }
-  return (await response.json()) as LessonSummary[]
+  const raw = (await response.json()) as Array<{
+    id: string
+    slug: string
+    title: Localized
+    status: LessonStatus
+    summary: Localized
+  }>
+  return raw.map((item) => ({
+    id: item.id,
+    slug: item.slug,
+    status: item.status,
+    title: pickI18n(item.title, locale),
+    summary: pickI18n(item.summary, locale),
+  }))
 }
 
-async function getLessonStatic(slug: string): Promise<LessonDetail> {
+async function getLessonStatic(slug: string, locale: Locale): Promise<LessonDetail> {
   const response = await fetch(assetUrl(`lessons/${encodeURIComponent(slug)}.json`))
   if (!response.ok) {
     throw new Error(`Lesson '${slug}' not found`)
   }
-  return (await response.json()) as LessonDetail
+  const raw = (await response.json()) as RawLesson
+  return resolveLesson(raw, locale)
 }
 
-export async function listLessons(): Promise<LessonSummary[]> {
+export async function listLessons(locale: Locale): Promise<LessonSummary[]> {
   if (staticMode) {
-    return listLessonsStatic()
+    return listLessonsStatic(locale)
   }
   try {
-    return await apiFetch('/api/v1/lessons')
+    return await apiFetch(`/api/v1/lessons?locale=${encodeURIComponent(locale)}`)
   } catch {
-    return listLessonsStatic()
+    return listLessonsStatic(locale)
   }
 }
 
-export async function getLesson(slug: string): Promise<LessonDetail> {
+export async function getLesson(slug: string, locale: Locale): Promise<LessonDetail> {
   if (staticMode) {
-    return getLessonStatic(slug)
+    return getLessonStatic(slug, locale)
   }
   try {
-    return await apiFetch(`/api/v1/lessons/${encodeURIComponent(slug)}`)
+    return await apiFetch(
+      `/api/v1/lessons/${encodeURIComponent(slug)}?locale=${encodeURIComponent(locale)}`,
+    )
   } catch {
-    return getLessonStatic(slug)
+    return getLessonStatic(slug, locale)
   }
 }
 

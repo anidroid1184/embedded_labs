@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
+import { useLocale } from '../i18n'
 import { toBitArray } from '../lib/bit-engine'
 
 const PATTERN = 0b10110100
 
 export function HeroBits() {
+  const { t } = useLocale()
   const reduceMotion = usePrefersReducedMotion()
   const [value, setValue] = useState(PATTERN)
   const [shifted, setShifted] = useState(false)
@@ -30,7 +32,7 @@ export function HeroBits() {
       aria-hidden="true"
     >
       <div className="hero-bits__label">
-        <span>live register</span>
+        <span>{t('hero.live')}</span>
         <span>0x{value.toString(16).toUpperCase().padStart(2, '0')}</span>
       </div>
       <div className="hero-bits__row">

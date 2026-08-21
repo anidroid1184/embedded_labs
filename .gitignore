@@ -3,6 +3,9 @@ target/
 node_modules/
 dist/
 .pnpm-store/
+.venv/
+**/__pycache__/
+.pytest_cache/
 
 # Secrets & local env (never commit real credentials)
 .env

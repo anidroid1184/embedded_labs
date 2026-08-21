@@ -1,17 +1,19 @@
-FROM rust:bookworm AS builder
-WORKDIR /app/apps/api
-COPY apps/api/Cargo.toml apps/api/Cargo.lock ./
-COPY apps/api/src ./src
-COPY apps/api/migrations ./migrations
-RUN cargo build --release --locked
+FROM python:3.12-slim-bookworm
 
-FROM debian:bookworm-slim
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates wget \
-    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-COPY --from=builder /app/apps/api/target/release/embedded_labs_api /usr/local/bin/embedded_labs_api
-COPY apps/api/migrations /app/migrations
-ENV RUST_LOG=info
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --no-cache-dir uv
+
+COPY apps/api/pyproject.toml apps/api/uv.lock ./
+RUN uv sync --frozen --no-dev
+
+COPY apps/api/app ./app
+
+ENV PYTHONPATH=/app
+ENV PATH="/app/.venv/bin:$PATH"
+
 EXPOSE 8080
-CMD ["embedded_labs_api"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]

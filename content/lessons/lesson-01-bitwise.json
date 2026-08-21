@@ -1,15 +1,27 @@
 {
   "id": "00000000-0000-4000-8000-000000000001",
   "slug": "bitwise-basics",
-  "title": "Bitwise Basics",
+  "title": {
+    "es": "Fundamentos bitwise",
+    "en": "Bitwise Basics"
+  },
   "status": "published",
-  "summary": "Aprende AND, OR, XOR, NOT y máscaras viendo cada bit transformarse paso a paso.",
+  "summary": {
+    "es": "Aprende AND, OR, XOR, NOT y máscaras viendo cada bit transformarse paso a paso.",
+    "en": "Learn AND, OR, XOR, NOT, and masks by watching every bit transform step by step."
+  },
   "steps": [
     {
       "id": "step-and",
       "kind": "bit_op",
-      "title": "AND — bits que sobreviven juntos",
-      "narration": "AND deja un bit en 1 solo si ambos operandos tienen 1 en esa posición. Ideal para aislar flags.",
+      "title": {
+        "es": "AND — bits que sobreviven juntos",
+        "en": "AND — bits that survive together"
+      },
+      "narration": {
+        "es": "AND deja un bit en 1 solo si ambos operandos tienen 1 en esa posición. Ideal para aislar flags.",
+        "en": "AND keeps a bit set only when both operands have 1 in that position. Ideal for isolating flags."
+      },
       "visual": {
         "bitWidth": 8,
         "operator": "AND",
@@ -20,8 +32,14 @@
     {
       "id": "step-or",
       "kind": "bit_op",
-      "title": "OR — encender bits",
-      "narration": "OR pone un bit en 1 si al menos uno de los operandos lo tiene. Sirve para activar flags sin tocar el resto.",
+      "title": {
+        "es": "OR — encender bits",
+        "en": "OR — turn bits on"
+      },
+      "narration": {
+        "es": "OR pone un bit en 1 si al menos uno de los operandos lo tiene. Sirve para activar flags sin tocar el resto.",
+        "en": "OR sets a bit if at least one operand has it. Useful for enabling flags without touching the rest."
+      },
       "visual": {
         "bitWidth": 8,
         "operator": "OR",
@@ -32,8 +50,14 @@
     {
       "id": "step-xor",
       "kind": "bit_op",
-      "title": "XOR — diferencia y toggle",
-      "narration": "XOR es 1 cuando los bits difieren. Aplicarlo dos veces con la misma máscara restaura el valor original.",
+      "title": {
+        "es": "XOR — diferencia y toggle",
+        "en": "XOR — difference and toggle"
+      },
+      "narration": {
+        "es": "XOR es 1 cuando los bits difieren. Aplicarlo dos veces con la misma máscara restaura el valor original.",
+        "en": "XOR is 1 when bits differ. Applying it twice with the same mask restores the original value."
+      },
       "visual": {
         "bitWidth": 8,
         "operator": "XOR",
@@ -44,8 +68,14 @@
     {
       "id": "step-not",
       "kind": "bit_op",
-      "title": "NOT — invertir el registro",
-      "narration": "NOT invierte cada bit. En hardware embebido suele usarse con el ancho del registro (aquí 8 bits).",
+      "title": {
+        "es": "NOT — invertir el registro",
+        "en": "NOT — invert the register"
+      },
+      "narration": {
+        "es": "NOT invierte cada bit. En hardware embebido suele usarse con el ancho del registro (aquí 8 bits).",
+        "en": "NOT flips every bit. In embedded hardware it is usually applied at the register width (here 8 bits)."
+      },
       "visual": {
         "bitWidth": 8,
         "operator": "NOT",
@@ -56,8 +86,14 @@
     {
       "id": "step-mask",
       "kind": "mask",
-      "title": "Máscara — extraer un campo",
-      "narration": "Una máscara selecciona bits de interés. AND con la máscara limpia lo demás; luego puedes desplazar el campo.",
+      "title": {
+        "es": "Máscara — extraer un campo",
+        "en": "Mask — extract a field"
+      },
+      "narration": {
+        "es": "Una máscara selecciona bits de interés. AND con la máscara limpia lo demás; luego puedes desplazar el campo.",
+        "en": "A mask selects the bits you care about. AND with the mask clears the rest; then you can shift the field."
+      },
       "visual": {
         "bitWidth": 8,
         "operator": "AND",
@@ -70,8 +106,14 @@
     {
       "id": "step-shl",
       "kind": "bit_op",
-      "title": "SHL — desplazamiento a la izquierda",
-      "narration": "SHL mueve cada bit hacia el MSB. Entran ceros por la derecha. Ideal para multiplicar por potencias de 2.",
+      "title": {
+        "es": "SHL — desplazamiento a la izquierda",
+        "en": "SHL — shift left"
+      },
+      "narration": {
+        "es": "SHL mueve cada bit hacia el MSB. Entran ceros por la derecha. Ideal para multiplicar por potencias de 2.",
+        "en": "SHL moves every bit toward the MSB. Zeros enter from the right. Ideal for multiplying by powers of two."
+      },
       "visual": {
         "bitWidth": 8,
         "operator": "SHL",
