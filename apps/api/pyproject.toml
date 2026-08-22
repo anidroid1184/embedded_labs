@@ -12,6 +12,8 @@ dependencies = [
     "pydantic-settings>=2.7.0",
     "alembic>=1.14.0",
     "httpx>=0.28.0",
+    "sqlmodel>=0.0.39",
+    "pytest>=9.1.1",
 ]
 
 [dependency-groups]
