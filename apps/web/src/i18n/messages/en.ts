@@ -5,6 +5,7 @@ export const en = {
     'A visual low-level lab: masks, AND/OR/XOR, and shifts step by step — terminal identity, live register animation.',
   'home.cta.lesson1': 'Start Lesson 1',
   'home.cta.lesson2': 'View Lesson 2 template',
+  'home.cta.lesson3': 'Test Message',
   'home.catalog': 'Lessons',
   'home.catalog.sub': 'Solid blocks. No smoke: every bit counts.',
   'home.loadingError': 'Failed to load lessons',

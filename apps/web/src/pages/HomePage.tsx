@@ -36,6 +36,9 @@ export function HomePage() {
             <Link className="btn btn--ghost" to="/lessons/registers-and-memory">
               {t('home.cta.lesson2')}
             </Link>
+            <Link className="btn btn--ghost" to="/lessons/test">
+              {t('home.cta.lesson3')}
+            </Link>
           </div>
         </div>
         <HeroBits />

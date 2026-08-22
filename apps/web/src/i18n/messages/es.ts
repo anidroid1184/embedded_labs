@@ -4,9 +4,10 @@ export const es: Record<MessageKey, string> = {
   'brand.name': 'Embedded Labs',
   'home.headline': 'Ve cómo se mueven los bits',
   'home.lede':
-    'Laboratorio visual de bajo nivel: máscaras, AND/OR/XOR y desplazamientos paso a paso — identidad de terminal, animación de registro en vivo.',
+  'Laboratorio visual de bajo nivel: máscaras, AND/OR/XOR y desplazamientos paso a paso — identidad de terminal, animación de registro en vivo.',
   'home.cta.lesson1': 'Empezar Lección 1',
   'home.cta.lesson2': 'Ver plantilla Lección 2',
+  'home.cta.lesson3': 'Mensaje  de prueba',
   'home.catalog': 'Lecciones',
   'home.catalog.sub': 'Bloques sólidos. Sin humo: cada bit cuenta.',
   'home.loadingError': 'Error cargando lecciones',
